@@ -5,13 +5,30 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/context/AuthContext';
 import { Navbar } from '@/components/common/Navbar';
 import { RegisterDeviceModal } from '@/components/dashboard/RegisterDeviceModal';
-import { Plus, Zap, Activity, AlertTriangle, Battery, CreditCard, ArrowUpRight, TrendingUp } from 'lucide-react';
+import { Plus, Zap, Activity, AlertTriangle, Battery, CreditCard, ArrowUpRight, TrendingUp, Copy, Smartphone } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+interface Device {
+  _id: string;
+  deviceId: string;
+  name: string;
+  mode: 'residential' | 'commercial';
+  status: 'online' | 'offline';
+  relayStatus: 'ON' | 'OFF';
+  apiKey: string;
+  lastActive: string;
+  lastLog?: {
+    voltage: number;
+    current: number;
+    power: number;
+    status: string;
+  };
+}
 
 export default function Dashboard() {
   const { user, token, loading } = useAuth();
   const router = useRouter();
-  const [devices, setDevices] = useState<any[]>([]);
+  const [devices, setDevices] = useState<Device[]>([]);
   const [fetching, setFetching] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -164,6 +181,25 @@ export default function Dashboard() {
                     </span>
                   </div>
                   <p className="text-gray-500 text-sm font-medium">Mode: {device.mode.toUpperCase()}</p>
+                </div>
+                <div className="flex flex-col">
+                  <h3 className="text-xl font-black text-white group-hover:text-blue-400 transition-colors uppercase tracking-tight">{device.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 font-mono">ID: {device.deviceId}</span>
+                    <span className="text-[10px] text-gray-700 font-black">•</span>
+                    <div 
+                      className="flex items-center gap-1 cursor-pointer group/key"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText(device.apiKey);
+                      }}
+                    >
+                      <span className="text-[10px] font-black uppercase tracking-widest text-blue-500/50 group-hover/key:text-blue-500 transition-colors font-mono">
+                        KEY: {device.apiKey.substring(0, 4)}••••
+                      </span>
+                      <Copy className="w-3 h-3 text-blue-500/30 group-hover/key:text-blue-500 transition-all opacity-0 group-hover/key:opacity-100" />
+                    </div>
+                  </div>
                 </div>
                 <div className="text-right">
                   <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">Relay Status</p>

@@ -8,6 +8,8 @@ interface User {
   name: string;
   email: string;
   balance: number;
+  role: 'user' | 'admin';
+  status: 'active' | 'suspended';
 }
 
 interface AuthContextType {

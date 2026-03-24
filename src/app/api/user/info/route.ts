@@ -36,7 +36,9 @@ export async function GET(req: Request) {
         id: user._id,
         name: user.name,
         email: user.email,
-        balance: user.balance
+        balance: user.balance,
+        role: user.role,
+        status: user.status
       },
       devices: devicesWithLogs
     });

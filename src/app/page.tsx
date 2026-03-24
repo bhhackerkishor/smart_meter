@@ -33,7 +33,7 @@ export default function LandingPage() {
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-900/10 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2" />
 
         <div className="max-w-7xl mx-auto relative z-10 text-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-blue-400 text-xs font-black uppercase tracking-[0.2em] mb-8"
@@ -41,18 +41,18 @@ export default function LandingPage() {
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
             Production Ready SaaS
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             className="text-6xl md:text-8xl font-black mb-8 leading-[0.95] tracking-tight"
           >
-            The Future of <br/>
+            The Future of <br />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-blue-600 to-blue-800">Smart Grid Edge</span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -61,7 +61,7 @@ export default function LandingPage() {
             Move ALL intelligence from your meters to the cloud. Production-level observability, real-time slab-based billing, and pre-paid relay control for the next generation of utility management.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -113,7 +113,7 @@ export default function LandingPage() {
       <section id="iot" className="py-32 px-6 border-y border-white/5 bg-white/[0.01]">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">
           <div className="flex-1 space-y-8">
-            <h2 className="text-5xl font-black leading-[1.1] tracking-tighter">Unified IoT Data <br/> Ingestion Protocol</h2>
+            <h2 className="text-5xl font-black leading-[1.1] tracking-tighter">Unified IoT Data <br /> Ingestion Protocol</h2>
             <p className="text-xl text-gray-500 font-medium leading-relaxed">
               Standardized REST-to-WebSocket pipeline for ESP32 & PZEM-004T integration. We move the heavy lifting from the microcontroller to MongoDB-backed Node.js microservices.
             </p>
@@ -131,27 +131,27 @@ export default function LandingPage() {
             </ul>
           </div>
           <div className="flex-1 w-full max-w-xl aspect-square glass rounded-[40px] border-blue-500/20 shadow-2xl shadow-blue-500/10 flex items-center justify-center p-10 relative group overflow-hidden">
-             <div className="absolute inset-0 bg-blue-600/5 group-hover:bg-blue-600/10 transition-colors duration-500" />
-             <div className="relative z-10 w-full bg-black/40 p-8 rounded-3xl border border-white/10 backdrop-blur-xl">
-               <div className="flex items-center justify-between mb-8">
-                 <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                 </div>
-                 <span className="text-[10px] font-black uppercase tracking-widest text-blue-500">Live Device Stream</span>
-               </div>
-               <div className="space-y-4 font-mono text-xs opacity-80">
-                 <p className="text-blue-400">POST /api/data HTTP/1.1</p>
-                 <p className="text-cyan-300">"deviceId": "UNIT-7x-ALPHA"</p>
-                 <p className="text-green-400">"voltage": 234.5V</p>
-                 <p className="text-yellow-400">"powerFact": 0.98</p>
-                 <div className="h-px w-full bg-white/10 my-4" />
-                 <p className="text-gray-500 italic pb-2">// Backend response in 14ms</p>
-                 <p className="text-white font-bold">"command": "RELAY_ON"</p>
-                 <p className="text-white font-bold">"status": "NORMAL"</p>
-               </div>
-             </div>
+            <div className="absolute inset-0 bg-blue-600/5 group-hover:bg-blue-600/10 transition-colors duration-500" />
+            <div className="relative z-10 w-full bg-black/40 p-8 rounded-3xl border border-white/10 backdrop-blur-xl">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                  <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-blue-500">Live Device Stream</span>
+              </div>
+              <div className="space-y-4 font-mono text-xs opacity-80">
+                <p className="text-blue-400">POST /api/data HTTP/1.1</p>
+                <p className="text-cyan-300">&quot;deviceId&quot;: &quot;UNIT-7x-ALPHA&quot;</p>
+                <p className="text-green-400">"voltage": 234.5V</p>
+                <p className="text-yellow-400">"powerFact": 0.98</p>
+                <div className="h-px w-full bg-white/10 my-4" />
+                <p className="text-gray-500 italic pb-2">// Backend response in 14ms</p>
+                <p className="text-white font-bold">"command": "RELAY_ON"</p>
+                <p className="text-white font-bold">"status": "NORMAL"</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -171,7 +171,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-20 px-6 border-t border-white/5 text-center text-gray-500 text-sm font-bold tracking-widest">
         <div className="flex items-center justify-center gap-2 mb-6 grayscale opacity-50">
-           <Zap className="w-4 h-4 fill-current" /> VoltFlow
+          <Zap className="w-4 h-4 fill-current" /> VoltFlow
         </div>
         <p>&copy; 2026 VoltFlow SaaS. Built for the modern grid. Distributed architecture. Secured by Design.</p>
       </footer>

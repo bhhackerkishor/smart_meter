@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/lib/context/AuthContext';
-import { Zap, LogOut, LayoutDashboard, Wallet, User as UserIcon } from 'lucide-react';
+import { Zap, LogOut, LayoutDashboard, Wallet, User as UserIcon, ShieldCheck } from 'lucide-react';
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -25,6 +25,11 @@ export function Navbar() {
           <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-2">
             <LayoutDashboard className="w-4 h-4" /> Dashboard
           </Link>
+          {user.role === 'admin' && (
+            <Link href="/admin" className="text-blue-500 hover:text-blue-400 font-bold transition-colors flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4" /> Protocol Console
+            </Link>
+          )}
           <Link href="/billing" className="hover:text-white transition-colors flex items-center gap-2">
             <Wallet className="w-4 h-4" /> Billing
           </Link>
