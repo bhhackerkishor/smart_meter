@@ -1,18 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/lib/context/AuthContext';
-import { useRouter } from 'next/navigation';
 import { 
-  Users, 
   Search, 
-  Plus, 
-  MoreVertical, 
   Eye, 
   Ban, 
   CheckCircle2, 
   Wallet,
-  ArrowUpDown,
   Filter,
   Loader2,
   ChevronLeft,
@@ -20,21 +15,20 @@ import {
   ShieldCheck,
   Smartphone
 } from 'lucide-react';
-import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
+import { User } from '@/lib/types';
 
 export default function UserManagement() {
-  const { user, token, loading } = useAuth();
-  const router = useRouter();
+  const { user: currentUser, token, loading } = useAuth();
   
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [fetching, setFetching] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     if (!token) return;
     try {
       const res = await fetch(`/api/admin/users?search=${search}&page=${page}`, {
@@ -50,9 +44,9 @@ export default function UserManagement() {
     } finally {
       setFetching(false);
     }
-  };
+  }, [token, search, page]);
 
-  const updateUser = async (userId: string, updates: any) => {
+  const updateUser = async (userId: string, updates: Partial<User>) => {
     if (!token) return;
     setUpdatingId(userId);
     try {
@@ -77,10 +71,10 @@ export default function UserManagement() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (user && token) fetchUsers();
+      if (currentUser && token) fetchUsers();
     }, 500);
     return () => clearTimeout(timer);
-  }, [search, page, user, token]);
+  }, [currentUser, token, fetchUsers]);
 
   if (loading || (fetching && page === 1)) return (
     <div className="min-h-[80vh] flex items-center justify-center">

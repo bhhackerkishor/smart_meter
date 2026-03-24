@@ -8,7 +8,7 @@ import { verifyToken } from '@/lib/utils/auth';
  * Get Device Details and Logs
  * GET /api/device/[id]/details
  */
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
     const token = req.headers.get('Authorization')?.split(' ')[1];
@@ -17,7 +17,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // 1. Get Device Details
     const device = await Device.findOne({ deviceId: id, userId: decoded.userId });
@@ -38,7 +38,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       logs: logs.reverse(), // Reverse for chronological order in charts
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Device Details Fetch Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
@@ -48,7 +48,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
  * Toggle Device Relay Manual Overridde
  * POST /api/device/[id]/relay
  */
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
     const token = req.headers.get('Authorization')?.split(' ')[1];
@@ -57,7 +57,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const { status } = await req.json(); // 'ON' or 'OFF'
 
     const device = await Device.findOneAndUpdate(
@@ -70,7 +70,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
 
     return NextResponse.json({ success: true, relayStatus: device.relayStatus });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

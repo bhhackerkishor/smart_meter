@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/lib/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
@@ -9,10 +9,6 @@ import {
   Zap, 
   Waves, 
   Activity, 
-  Trash2, 
-  CheckCircle2, 
-  TrendingUp, 
-  Clock, 
   Loader2,
   Filter,
   RefreshCw,
@@ -22,17 +18,23 @@ import {
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 
+interface Alert {
+  id: string;
+  level: 'CRITICAL' | 'WARNING' | 'NORMAL';
+  type: 'OVERLOAD' | 'VOLTAGE' | 'PF' | 'OUTAGE' | 'TAMPER';
+  msg: string;
+  node: string;
+  time: Date;
+}
+
 export default function AlertMonitoring() {
   const { user, token, loading } = useAuth();
   const router = useRouter();
   
-  const [alerts, setAlerts] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [fetching, setFetching] = useState(true);
 
-  // Mocking alerts for now as we don't have a separate Alert model yet,
-  // we usually detect them on-the-fly or log them to EnergyLogs.
-  // In a real system, we'd have an Alerts collection.
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     if (!token) return;
     setFetching(true);
     // Simulating real-time alert aggregation from system logs
@@ -46,11 +48,13 @@ export default function AlertMonitoring() {
       ]);
       setFetching(false);
     }, 800);
-  };
+  }, [token]);
 
   useEffect(() => {
-    if (user && token) fetchAlerts();
-  }, [user, token]);
+    if (user && token) {
+      fetchAlerts();
+    }
+  }, [user, token, fetchAlerts]);
 
   if (loading || fetching) return (
     <div className="min-h-[80vh] flex items-center justify-center">

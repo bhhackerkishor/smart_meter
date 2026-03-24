@@ -144,12 +144,12 @@ export default function LandingPage() {
               <div className="space-y-4 font-mono text-xs opacity-80">
                 <p className="text-blue-400">POST /api/data HTTP/1.1</p>
                 <p className="text-cyan-300">&quot;deviceId&quot;: &quot;UNIT-7x-ALPHA&quot;</p>
-                <p className="text-green-400">"voltage": 234.5V</p>
-                <p className="text-yellow-400">"powerFact": 0.98</p>
+                <p className="text-green-400">&quot;voltage&quot;: 234.5V</p>
+                <p className="text-yellow-400">&quot;powerFact&quot;: 0.98</p>
                 <div className="h-px w-full bg-white/10 my-4" />
-                <p className="text-gray-500 italic pb-2">// Backend response in 14ms</p>
-                <p className="text-white font-bold">"command": "RELAY_ON"</p>
-                <p className="text-white font-bold">"status": "NORMAL"</p>
+                <p className="text-gray-500 italic pb-2">{`// Backend response in 14ms`}</p>
+                <p className="text-white font-bold">&quot;command&quot;: &quot;RELAY_ON&quot;</p>
+                <p className="text-white font-bold">&quot;status&quot;: &quot;NORMAL&quot;</p>
               </div>
             </div>
           </div>

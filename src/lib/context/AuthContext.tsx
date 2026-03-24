@@ -12,58 +12,73 @@ interface User {
   status: 'active' | 'suspended';
 }
 
-interface AuthContextType {
+interface AuthState {
   user: User | null;
   token: string | null;
+  loading: boolean;
+}
+
+interface AuthContextType extends AuthState {
   login: (token: string, user: User) => void;
   logout: () => void;
-  loading: boolean;
   refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    token: null,
+    loading: true
+  });
   const router = useRouter();
 
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
-    if (savedToken && savedUser) {
-      setToken(savedToken);
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    
+    setAuthState({
+      token: savedToken,
+      user: savedUser ? JSON.parse(savedUser) : null,
+      loading: false
+    });
   }, []);
 
   const login = (newToken: string, newUser: User) => {
-    setToken(newToken);
-    setUser(newUser);
+    setAuthState({
+      token: newToken,
+      user: newUser,
+      loading: false
+    });
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
     router.push('/dashboard');
   };
 
   const logout = () => {
-    setToken(null);
-    setUser(null);
+    setAuthState({
+      token: null,
+      user: null,
+      loading: false
+    });
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     router.push('/login');
   };
 
   const refreshUser = async () => {
-    if (!token) return;
+    if (!authState.token) return;
     try {
       const res = await fetch('/api/user/info', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${authState.token}` }
       });
       const data = await res.json();
       if (data.success) {
-        setUser(data.user);
+        setAuthState(prev => ({
+          ...prev,
+          user: data.user
+        }));
         localStorage.setItem('user', JSON.stringify(data.user));
       }
     } catch (err) {
@@ -72,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading, refreshUser }}>
+    <AuthContext.Provider value={{ ...authState, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
