@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/context/AuthContext';
 import { Navbar } from '@/components/common/Navbar';
 import { RegisterDeviceModal } from '@/components/dashboard/RegisterDeviceModal';
@@ -9,6 +10,7 @@ import { motion } from 'framer-motion';
 
 export default function Dashboard() {
   const { user, token, loading } = useAuth();
+  const router = useRouter();
   const [devices, setDevices] = useState<any[]>([]);
   const [fetching, setFetching] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -191,7 +193,10 @@ export default function Dashboard() {
                   <div className={`w-3 h-3 rounded-full ${device.lastLog?.status === 'Normal' ? 'bg-green-500' : 'bg-orange-500'} animate-pulse`} />
                   <span className="text-sm font-bold">{device.lastLog?.status || 'Active'}</span>
                 </div>
-                <button className="text-blue-400 hover:text-blue-300 text-sm font-black flex items-center gap-1 group/btn">
+                <button 
+                  onClick={() => router.push(`/device/${device.deviceId}`)}
+                  className="text-blue-400 hover:text-blue-300 text-sm font-black flex items-center gap-1 group/btn"
+                >
                   Analyze Details <ArrowUpRight className="w-4 h-4 transition-transform group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5" />
                 </button>
               </div>

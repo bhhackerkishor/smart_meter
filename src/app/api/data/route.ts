@@ -4,6 +4,7 @@ import { Device } from '@/lib/db/models/Device';
 import { User } from '@/lib/db/models/User';
 import { EnergyLog } from '@/lib/db/models/EnergyLog';
 import { Transaction } from '@/lib/db/models/Transaction';
+import { Settings, getBillingConfig } from '@/lib/db/models/Settings';
 import { detectStatus, detectAlerts } from '@/lib/services/alertService';
 import { calculateResidentialBill, calculateCommercialBill } from '@/lib/services/billingService';
 
@@ -32,23 +33,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // 3. Calculation Logic
+    // 3. Calculation Logic & Configuration
+    const billingConfig = await getBillingConfig();
     const kva = powerFactor > 0 ? (power / (powerFactor * 1000)) : 0;
     const status = detectStatus(voltage, current, power);
     const alerts = detectAlerts(voltage, frequency, powerFactor);
 
     // 4. Billing & Prepaid Logic
-    // For production, we track previous energy to calculate delta units
     const lastLog = await EnergyLog.findOne({ deviceId }).sort({ timestamp: -1 });
     const deltaUnits = lastLog ? Math.max(0, energy - lastLog.energy) : 0;
     
     let cost = 0;
     if (deltaUnits > 0) {
       if (device.mode === 'commercial') {
-        const commBill = calculateCommercialBill(deltaUnits, kva, powerFactor);
+        const commBill = calculateCommercialBill(deltaUnits, kva, powerFactor, new Date(), billingConfig);
         cost = commBill.total;
       } else {
-        const resBill = calculateResidentialBill(deltaUnits);
+        const resBill = calculateResidentialBill(deltaUnits, billingConfig);
         cost = resBill.total;
       }
 
