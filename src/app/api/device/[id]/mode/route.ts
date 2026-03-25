@@ -1,3 +1,10 @@
+import { NextResponse } from 'next/server';
+import connectToDatabase from '@/lib/db/connect';
+import { Device } from '@/lib/db/models/Device';
+import { EnergyLog } from '@/lib/db/models/EnergyLog';
+import { verifyToken } from '@/lib/utils/auth';
+
+
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
