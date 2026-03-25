@@ -112,7 +112,7 @@ export default function AnalyzeDetails() {
       <Navbar />
       
       <main className="max-w-7xl mx-auto px-6 pt-32 pb-20">
-        {/* Breadcrumbs & Header */}
+                {/* Breadcrumbs & Header */}
         <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="space-y-2">
             <button 
@@ -135,40 +135,38 @@ export default function AnalyzeDetails() {
           <div className="flex items-center gap-4">
             <div className="glass p-1.5 flex gap-1">
               <div className="flex gap-2">
+                {/* AUTO MODE BUTTON */}
+                <button
+                  onClick={async () => {
+                    await fetch(`/api/device/${id}/mode`, {
+                      method: 'PATCH',
+                      headers: { Authorization: `Bearer ${token}` }
+                    });
+                    fetchDetails();
+                  }}
+                  className={`px-4 py-2 ${device.controlMode === 'AUTO' ? 'bg-green-600' : 'bg-gray-600'}`}
+                >
+                  AUTO
+                </button>
 
-  {/* AUTO MODE BUTTON */}
-  <button
-    onClick={async () => {
-      await fetch(`/api/device/${id}/mode`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchDetails();
-    }}
-    className={`px-4 py-2 ${device.controlMode === 'AUTO' ? 'bg-green-600' : 'bg-gray-600'}`}
-  >
-    AUTO
-  </button>
+                {/* MANUAL RELAY BUTTON */}
+                <button
+                  onClick={toggleRelay}
+                  disabled={device.controlMode !== 'MANUAL' || relayLoading}
+                  className={`px-6 py-2 ${
+                    device.relayStatus === 'ON' ? 'bg-blue-600' : 'bg-red-600'
+                  }`}
+                >
+                  {device.relayStatus}
+                </button>
+              </div>
+            </div>   {/* ←←← THIS WAS MISSING */}
 
-  {/* MANUAL RELAY BUTTON */}
-  <button
-    onClick={toggleRelay}
-    disabled={device.controlMode !== 'MANUAL' || relayLoading}
-    className={`px-6 py-2 ${
-      device.relayStatus === 'ON'
-        ? 'bg-blue-600'
-        : 'bg-red-600'
-    }`}
-  >
-    {device.relayStatus}
-  </button>
-
-</div>
-              {device.controlMode === 'MANUAL' && (
-  <p className="text-yellow-500 text-xs">
-    Manual override active ⚠️
-  </p>
-)}
+            {device.controlMode === 'MANUAL' && (
+              <p className="text-yellow-500 text-xs">
+                Manual override active ⚠️
+              </p>
+            )}
           </div>
         </header>
 
