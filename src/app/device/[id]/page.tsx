@@ -35,7 +35,7 @@ export default function AnalyzeDetails() {
   const [logs, setLogs] = useState<any[]>([]);
   const [fetching, setFetching] = useState(true);
   const [relayLoading, setRelayLoading] = useState(false);
-
+  const [controlMode, setControlMode] = useState<'AUTO' | 'MANUAL'>('AUTO');
   const fetchDetails = async () => {
     if (!token) return;
     try {
@@ -55,28 +55,30 @@ export default function AnalyzeDetails() {
   };
 
   const toggleRelay = async () => {
-    if (!token || relayLoading) return;
-    setRelayLoading(true);
-    const newStatus = device.relayStatus === 'ON' ? 'OFF' : 'ON';
-    try {
-      const res = await fetch(`/api/device/${id}/details`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}` 
-        },
-        body: JSON.stringify({ status: newStatus })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setDevice({ ...device, relayStatus: data.relayStatus });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setRelayLoading(false);
-    }
-  };
+  if (!token || relayLoading) return;
+
+  setRelayLoading(true);
+
+  const newStatus = device.relayStatus === 'ON' ? 'OFF' : 'ON';
+
+  try {
+    await fetch(`/api/device/${id}/details`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ status: newStatus })
+    });
+
+    fetchDetails(); // refresh state
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setRelayLoading(false);
+  }
+};
 
   useEffect(() => {
     if (!loading && !user) router.push('/login');
@@ -132,22 +134,41 @@ export default function AnalyzeDetails() {
 
           <div className="flex items-center gap-4">
             <div className="glass p-1.5 flex gap-1">
-              <button 
-                onClick={toggleRelay}
-                disabled={relayLoading}
-                className={`px-6 py-2.5 rounded-lg flex items-center gap-2 text-sm font-black transition-all ${
-                  device.relayStatus === 'ON' 
-                    ? 'bg-blue-600 text-white glow-blue scale-100 hover:scale-[1.02] active:scale-95' 
-                    : 'bg-white/5 text-gray-500 hover:bg-white/10'
-                } ${relayLoading ? 'opacity-50' : ''}`}
-              >
-                {relayLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Power className="w-4 h-4" />}
-                RELAY {device.relayStatus}
-              </button>
-            </div>
-            <button className="p-3.5 glass hover:bg-white/10 transition-colors rounded-xl border border-white/5">
-              <Settings className="w-5 h-5 text-gray-400" />
-            </button>
+              <div className="flex gap-2">
+
+  {/* AUTO MODE BUTTON */}
+  <button
+    onClick={async () => {
+      await fetch(`/api/device/${id}/mode`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchDetails();
+    }}
+    className={`px-4 py-2 ${device.controlMode === 'AUTO' ? 'bg-green-600' : 'bg-gray-600'}`}
+  >
+    AUTO
+  </button>
+
+  {/* MANUAL RELAY BUTTON */}
+  <button
+    onClick={toggleRelay}
+    disabled={device.controlMode !== 'MANUAL' || relayLoading}
+    className={`px-6 py-2 ${
+      device.relayStatus === 'ON'
+        ? 'bg-blue-600'
+        : 'bg-red-600'
+    }`}
+  >
+    {device.relayStatus}
+  </button>
+
+</div>
+              {device.controlMode === 'MANUAL' && (
+  <p className="text-yellow-500 text-xs">
+    Manual override active ⚠️
+  </p>
+)}
           </div>
         </header>
 
