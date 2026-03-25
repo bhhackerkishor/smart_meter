@@ -55,11 +55,18 @@ export default function AnalyzeDetails() {
   };
 
   const toggleRelay = async () => {
-  if (!token || relayLoading) return;
+  if (!token || relayLoading || !device) return;
 
   setRelayLoading(true);
 
-  const newStatus = device.relayStatus === 'ON' ? 'OFF' : 'ON';
+  const newStatus = device.manualRelay === 'ON' ? 'OFF' : 'ON';
+
+  // 🔥 instant UI update
+  setDevice((prev: any) => ({
+    ...prev,
+    manualRelay: newStatus,
+    controlMode: 'MANUAL'
+  }));
 
   try {
     await fetch(`/api/device/${id}/details`, {
@@ -70,8 +77,6 @@ export default function AnalyzeDetails() {
       },
       body: JSON.stringify({ status: newStatus })
     });
-
-    fetchDetails(); // refresh state
 
   } catch (err) {
     console.error(err);
@@ -189,7 +194,7 @@ export default function AnalyzeDetails() {
       onClick={toggleRelay}
       disabled={device?.controlMode !== 'MANUAL' || relayLoading}
       className={`w-14 h-7 flex items-center rounded-full p-1 transition ${
-        device?.relayStatus === 'ON' ? 'bg-blue-600' : 'bg-red-600'
+        device?.manualRelay === 'ON' ? 'bg-blue-600' : 'bg-red-600'
       } ${
         device?.controlMode !== 'MANUAL'
           ? 'opacity-50 cursor-not-allowed'
@@ -198,13 +203,13 @@ export default function AnalyzeDetails() {
     >
       <div
         className={`bg-white w-5 h-5 rounded-full shadow-md transform transition ${
-          device?.relayStatus === 'ON' ? 'translate-x-7' : ''
+          device?.manualRelay === 'ON' ? 'translate-x-7' : ''
         }`}
       />
     </button>
 
     <span className="text-xs font-bold">
-      {device?.relayStatus || '—'}
+      {device?.manualRelay || '—'}
     </span>
   </div>
 
