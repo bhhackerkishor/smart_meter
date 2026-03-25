@@ -200,6 +200,7 @@ export default function AnalyzeDetails() {
     </p>
   )}
 </div>
+              </div> 
         </header>
 
         {/* Real-time Metric Grid */}
