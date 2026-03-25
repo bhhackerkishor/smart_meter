@@ -51,24 +51,37 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
+
     const token = req.headers.get('Authorization')?.split(' ')[1];
     const decoded = token ? verifyToken(token) : null;
+
     if (!decoded) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id } = await params;
-    const { status } = await req.json(); // 'ON' or 'OFF'
+    const { status } = await req.json(); // 'ON' | 'OFF'
 
-    const device = await Device.findOneAndUpdate(
-      { deviceId: id, userId: decoded.userId },
-      { relayStatus: status },
-      { new: true }
-    );
+    const device = await Device.findOne({ deviceId: id, userId: decoded.userId });
 
-    if (!device) return NextResponse.json({ error: 'Device not found' }, { status: 404 });
+    if (!device) {
+      return NextResponse.json({ error: 'Device not found' }, { status: 404 });
+    }
 
-    return NextResponse.json({ success: true, relayStatus: device.relayStatus });
+    // 🔥 SWITCH TO MANUAL MODE
+    device.controlMode = 'MANUAL';
+    device.manualRelay = status;
+
+    // Optional: expire after 1 hour
+    device.overrideExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    await device.save();
+
+    return NextResponse.json({
+      success: true,
+      controlMode: device.controlMode,
+      manualRelay: device.manualRelay,
+    });
 
   } catch (error: unknown) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
