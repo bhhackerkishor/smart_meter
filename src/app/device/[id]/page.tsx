@@ -134,40 +134,68 @@ export default function AnalyzeDetails() {
 
           <div className="flex items-center gap-4">
             <div className="glass p-1.5 flex gap-1">
-              <div className="flex gap-2">
-                {/* AUTO MODE BUTTON */}
-                <button
-                  onClick={async () => {
-                    await fetch(`/api/device/${id}/mode`, {
-                      method: 'PATCH',
-                      headers: { Authorization: `Bearer ${token}` }
-                    });
-                    fetchDetails();
-                  }}
-                  className={`px-4 py-2 ${device.controlMode === 'AUTO' ? 'bg-green-600' : 'bg-gray-600'}`}
-                >
-                  AUTO
-                </button>
+             <div className="space-y-4">
 
-                {/* MANUAL RELAY BUTTON */}
-                <button
-                  onClick={toggleRelay}
-                  disabled={device.controlMode !== 'MANUAL' || relayLoading}
-                  className={`px-6 py-2 ${
-                    device.relayStatus === 'ON' ? 'bg-blue-600' : 'bg-red-600'
-                  }`}
-                >
-                  {device.relayStatus}
-                </button>
-              </div>
-            </div>   {/* ←←← THIS WAS MISSING */}
+  {/* MODE TOGGLE */}
+  <div className="flex items-center justify-between">
+    <span className="text-sm font-medium">Control Mode</span>
 
-            {device.controlMode === 'MANUAL' && (
-              <p className="text-yellow-500 text-xs">
-                Manual override active ⚠️
-              </p>
-            )}
-          </div>
+    <button
+      onClick={async () => {
+        await fetch(`/api/device/${id}/mode`, {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchDetails();
+      }}
+      className={`w-16 h-8 flex items-center rounded-full p-1 transition ${
+        device.controlMode === 'AUTO' ? 'bg-green-600' : 'bg-gray-600'
+      }`}
+    >
+      <div
+        className={`bg-white w-6 h-6 rounded-full shadow-md transform transition ${
+          device.controlMode === 'AUTO' ? 'translate-x-8' : ''
+        }`}
+      />
+    </button>
+
+    <span className="text-xs">
+      {device.controlMode}
+    </span>
+  </div>
+
+  {/* RELAY TOGGLE */}
+  <div className="flex items-center justify-between">
+    <span className="text-sm font-medium">Relay</span>
+
+    <button
+      onClick={toggleRelay}
+      disabled={device.controlMode !== 'MANUAL' || relayLoading}
+      className={`w-16 h-8 flex items-center rounded-full p-1 transition ${
+        device.relayStatus === 'ON' ? 'bg-blue-600' : 'bg-red-600'
+      } ${
+        device.controlMode !== 'MANUAL' ? 'opacity-50 cursor-not-allowed' : ''
+      }`}
+    >
+      <div
+        className={`bg-white w-6 h-6 rounded-full shadow-md transform transition ${
+          device.relayStatus === 'ON' ? 'translate-x-8' : ''
+        }`}
+      />
+    </button>
+
+    <span className="text-xs">
+      {device.relayStatus}
+    </span>
+  </div>
+
+  {/* MANUAL WARNING */}
+  {device.controlMode === 'MANUAL' && (
+    <p className="text-yellow-500 text-xs">
+      Manual override active ⚠️
+    </p>
+  )}
+</div>
         </header>
 
         {/* Real-time Metric Grid */}
