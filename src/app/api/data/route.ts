@@ -70,16 +70,36 @@ export async function POST(req: Request) {
     }
 
     // 5. Prepaid Relay Control
-    let relayCommand = device.relayStatus;
-    if (user.balance <= 0) {
-      relayCommand = 'OFF';
-      device.relayStatus = 'OFF';
-      device.status = 'offline'; // Or inactive
-    } else {
-      relayCommand = 'ON';
-      device.relayStatus = 'ON';
-      device.status = 'online';
-    }
+    // 5. Advanced Relay Control Logic
+
+let relayCommand = device.relayStatus;
+
+// 🔴 PRIORITY 1: Safety
+if (user.balance <= 0) {
+  relayCommand = 'OFF';
+  device.relayStatus = 'OFF';
+  device.status = 'inactive';
+}
+
+// 🟡 PRIORITY 2: Manual Mode
+else if (device.controlMode === 'MANUAL') {
+
+  // Optional expiry check
+  if (device.overrideExpiresAt && new Date() > device.overrideExpiresAt) {
+    device.controlMode = 'AUTO'; // revert back
+  } else {
+    relayCommand = device.manualRelay;
+    device.relayStatus = device.manualRelay;
+    device.status = relayCommand === 'ON' ? 'online' : 'offline';
+  }
+}
+
+// 🟢 PRIORITY 3: Auto Mode
+if (device.controlMode === 'AUTO') {
+  relayCommand = 'ON';
+  device.relayStatus = 'ON';
+  device.status = 'online';
+}
     
     device.lastActive = new Date();
     await device.save();
