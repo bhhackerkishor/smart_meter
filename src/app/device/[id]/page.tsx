@@ -136,9 +136,11 @@ export default function AnalyzeDetails() {
             <div className="glass p-1.5 flex gap-1">
              
 
+ <div className="glass p-4 rounded-xl space-y-4 min-w-[220px]">
+
   {/* MODE TOGGLE */}
-  <div className="flex items-center justify-between">
-    <span className="text-sm font-medium">Control Mode</span>
+  <div className="flex items-center justify-between gap-3">
+    <span className="text-xs font-semibold text-gray-400">Mode</span>
 
     <button
       onClick={async () => {
@@ -148,50 +150,52 @@ export default function AnalyzeDetails() {
         });
         fetchDetails();
       }}
-      className={`w-16 h-8 flex items-center rounded-full p-1 transition ${
-        device.controlMode === 'AUTO' ? 'bg-green-600' : 'bg-gray-600'
+      className={`w-14 h-7 flex items-center rounded-full p-1 transition ${
+        device?.controlMode === 'AUTO' ? 'bg-green-600' : 'bg-gray-600'
       }`}
     >
       <div
-        className={`bg-white w-6 h-6 rounded-full shadow-md transform transition ${
-          device.controlMode === 'AUTO' ? 'translate-x-8' : ''
+        className={`bg-white w-5 h-5 rounded-full shadow-md transform transition ${
+          device?.controlMode === 'AUTO' ? 'translate-x-7' : ''
         }`}
       />
     </button>
 
-    <span className="text-xs">
-      {device.controlMode}
+    <span className="text-xs font-bold">
+      {device?.controlMode || '—'}
     </span>
   </div>
 
   {/* RELAY TOGGLE */}
-  <div className="flex items-center justify-between">
-    <span className="text-sm font-medium">Relay</span>
+  <div className="flex items-center justify-between gap-3">
+    <span className="text-xs font-semibold text-gray-400">Relay</span>
 
     <button
       onClick={toggleRelay}
-      disabled={device.controlMode !== 'MANUAL' || relayLoading}
-      className={`w-16 h-8 flex items-center rounded-full p-1 transition ${
-        device.relayStatus === 'ON' ? 'bg-blue-600' : 'bg-red-600'
+      disabled={device?.controlMode !== 'MANUAL' || relayLoading}
+      className={`w-14 h-7 flex items-center rounded-full p-1 transition ${
+        device?.relayStatus === 'ON' ? 'bg-blue-600' : 'bg-red-600'
       } ${
-        device.controlMode !== 'MANUAL' ? 'opacity-50 cursor-not-allowed' : ''
+        device?.controlMode !== 'MANUAL'
+          ? 'opacity-50 cursor-not-allowed'
+          : ''
       }`}
     >
       <div
-        className={`bg-white w-6 h-6 rounded-full shadow-md transform transition ${
-          device.relayStatus === 'ON' ? 'translate-x-8' : ''
+        className={`bg-white w-5 h-5 rounded-full shadow-md transform transition ${
+          device?.relayStatus === 'ON' ? 'translate-x-7' : ''
         }`}
       />
     </button>
 
-    <span className="text-xs">
-      {device.relayStatus}
+    <span className="text-xs font-bold">
+      {device?.relayStatus || '—'}
     </span>
   </div>
 
-  {/* MANUAL WARNING */}
-  {device.controlMode === 'MANUAL' && (
-    <p className="text-yellow-500 text-xs">
+  {/* WARNING */}
+  {device?.controlMode === 'MANUAL' && (
+    <p className="text-yellow-500 text-[10px]">
       Manual override active ⚠️
     </p>
   )}
