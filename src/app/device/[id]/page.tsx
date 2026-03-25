@@ -134,7 +134,7 @@ export default function AnalyzeDetails() {
 
           <div className="flex items-center gap-4">
             <div className="glass p-1.5 flex gap-1">
-             <div className="space-y-4">
+             
 
   {/* MODE TOGGLE */}
   <div className="flex items-center justify-between">
