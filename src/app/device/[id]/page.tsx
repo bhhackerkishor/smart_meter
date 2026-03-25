@@ -144,12 +144,27 @@ export default function AnalyzeDetails() {
 
     <button
       onClick={async () => {
-        await fetch(`/api/device/${id}/mode`, {
-          method: 'PATCH',
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        fetchDetails();
-      }}
+  const newMode = device?.controlMode === 'AUTO' ? 'MANUAL' : 'AUTO';
+
+  // 🔥 instant UI update
+  setDevice((prev: any) => ({
+    ...prev,
+    controlMode: newMode
+  }));
+
+  try {
+    await fetch(`/api/device/${id}/mode`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ controlMode: newMode })
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}}
       className={`w-14 h-7 flex items-center rounded-full p-1 transition ${
         device?.controlMode === 'AUTO' ? 'bg-green-600' : 'bg-gray-600'
       }`}
