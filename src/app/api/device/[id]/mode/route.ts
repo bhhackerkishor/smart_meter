@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db/connect';
 import { Device } from '@/lib/db/models/Device';
-import { EnergyLog } from '@/lib/db/models/EnergyLog';
 import { verifyToken } from '@/lib/utils/auth';
 
-
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     await connectToDatabase();
 
@@ -17,25 +18,35 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     const { id } = await params;
+    const { controlMode } = await req.json(); // 'AUTO' | 'MANUAL'
 
     const device = await Device.findOne({
       deviceId: id,
-      userId: decoded.userId,
+      userId: decoded.userId
     });
 
     if (!device) {
       return NextResponse.json({ error: 'Device not found' }, { status: 404 });
     }
 
-    // 🔥 BACK TO AUTO MODE
-    device.controlMode = 'AUTO';
-    device.overrideExpiresAt = null;
+    // 🔥 UPDATE MODE
+    device.controlMode = controlMode;
+
+    // Optional: reset manual override if AUTO
+    if (controlMode === 'AUTO') {
+      device.manualRelay = null;
+      device.overrideExpiresAt = null;
+    }
 
     await device.save();
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      controlMode: device.controlMode
+    });
 
-  } catch {
+  } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
