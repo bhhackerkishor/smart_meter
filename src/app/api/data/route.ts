@@ -88,7 +88,7 @@ export async function POST(req: Request) {
     if (deltaUnits > 0) {
       if (device.mode === 'commercial') {
         const bill = calculateCommercialBill(
-          deltaUnits,
+          energy,
           kva,
           powerFactor,
           new Date(),
@@ -97,7 +97,7 @@ export async function POST(req: Request) {
         cost = bill.total;
       } else {
         const bill = calculateResidentialBill(
-          deltaUnits,
+          energy,
           billingConfig
         );
         cost = bill.total;
