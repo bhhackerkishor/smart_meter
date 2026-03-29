@@ -72,55 +72,46 @@ export async function POST(req: Request) {
 
     console.log('📈 Calculated:', { kva, status, alerts });
 
-    // 4. Billing Logic
-    const lastLog = await EnergyLog.findOne({ deviceId }).sort({
-      timestamp: -1
-    });
-
-    const deltaUnits = lastLog
-      ? Math.max(0, energy - lastLog.energy)
-      : 0;
-
-    console.log('⚡ Delta Units:', deltaUnits);
+    // 4. Energy Difference
+    const lastLog = await EnergyLog.findOne({ deviceId }).sort({ timestamp: -1 });
+    const prevUnits = lastLog ? lastLog.energy : 0;
+    const deltaUnits = lastLog ? Math.max(0, energy - prevUnits) : 0;
 
     let cost = 0;
 
     if (deltaUnits > 0) {
       if (device.mode === 'commercial') {
-        const bill = calculateCommercialBill(
-          energy,
+        const commBill = calculateCommercialBill(
+          deltaUnits,
           kva,
           powerFactor,
           new Date(),
           billingConfig
         );
-        cost = bill.total;
+        cost = commBill.total;
       } else {
-        const bill = calculateResidentialBill(
-          energy,
-          billingConfig
-        );
-        cost = bill.total;
+        // ✅ FIXED RESIDENTIAL LOGIC
+        const prevTotalBill = prevUnits
+          ? calculateResidentialBill(prevUnits, billingConfig).total
+          : 0;
+
+        const currentTotalBill = calculateResidentialBill(energy, billingConfig).total;
+
+        cost = currentTotalBill - prevTotalBill;
       }
 
-      console.log('💰 Cost calculated:', cost);
-
-      // Deduct balance safely
-      user.balance = Math.max(0, user.balance - cost);
+      // Deduct balance
+      user.balance -= cost;
       await user.save();
-
-      console.log('💳 Updated balance:', user.balance);
 
       if (cost > 0) {
         await Transaction.create({
           userId: user._id,
-          deviceId,
+          deviceId: deviceId,
           type: 'deduction',
           amount: cost,
-          description: `Energy deduction: ${deltaUnits} units`
+          description: Energy consumption deduction: ${deltaUnits} units
         });
-
-        console.log('🧾 Transaction logged');
       }
     }
 
