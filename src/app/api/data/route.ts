@@ -110,7 +110,7 @@ export async function POST(req: Request) {
           deviceId: deviceId,
           type: 'deduction',
           amount: cost,
-          description: Energy consumption deduction: ${deltaUnits} units
+          description: `Energy consumption deduction: ${deltaUnits} units`
         });
       }
     }
