@@ -129,9 +129,9 @@ export default function AnalyzeDetails() {
             <div className="flex items-center gap-4">
               <h1 className="text-5xl font-black tracking-tighter">Device <span className="text-blue-500">{id}</span></h1>
               <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                device.status === 'online' ? 'bg-green-500 text-black' : 'bg-red-500 text-white'
+                device.isOnline ? 'bg-green-500 text-black' : 'bg-red-500 text-white'
               }`}>
-                {device.status}
+                {device.isOnline ? 'online' : 'offline'}
               </span>
             </div>
             <p className="text-gray-500 font-medium">Production Infrastructure • Managed Edge Monitoring Since {format(new Date(device.lastActive), 'MMM d, yyyy')}</p>
