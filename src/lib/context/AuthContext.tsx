@@ -12,8 +12,16 @@ interface User {
   status: 'active' | 'suspended';
 }
 
+interface Stats {
+  dailyConsumption: number;
+  projectedMonthly: number;
+  anyAlerts: boolean;
+  powerQuality: 'STABLE' | 'UNSTABLE';
+}
+
 interface AuthState {
   user: User | null;
+  stats: Stats | null;
   token: string | null;
   loading: boolean;
 }
@@ -29,6 +37,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
+    stats: null,
     token: null,
     loading: true
   });
@@ -41,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthState({
       token: savedToken,
       user: savedUser ? JSON.parse(savedUser) : null,
+      stats: null,
       loading: false
     });
   }, []);
@@ -49,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthState({
       token: newToken,
       user: newUser,
+      stats: null,
       loading: false
     });
     localStorage.setItem('token', newToken);
@@ -60,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthState({
       token: null,
       user: null,
+      stats: null,
       loading: false
     });
     localStorage.removeItem('token');
@@ -77,7 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.success) {
         setAuthState(prev => ({
           ...prev,
-          user: data.user
+          user: data.user,
+          stats: data.stats
         }));
         localStorage.setItem('user', JSON.stringify(data.user));
       }
