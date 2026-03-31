@@ -7,19 +7,35 @@ import { CreditCard, Wallet, ArrowDownRight, ArrowUpRight, History, Calendar, Do
 import { motion } from 'framer-motion';
 
 export default function BillingPage() {
-  const { user, token, loading, refreshUser } = useAuth();
+  const { user, stats, token, loading, refreshUser } = useAuth();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [rechargeAmount, setRechargeAmount] = useState('');
   const [processing, setProcessing] = useState(false);
 
+  const fetchTransactions = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/transactions', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTransactions(data.transactions);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
-    if (!loading && !user) window.location.href = '/login';
-    // Mocking transactions for now, in production fetch from /api/transactions
-    setTransactions([
-      { id: '1', type: 'recharge', amount: 500, description: 'Mobile Recharge', date: '2026-03-24' },
-      { id: '2', type: 'deduction', amount: 45.20, description: 'Energy Consumption (UNIT-7x)', date: '2026-03-23' },
-      { id: '3', type: 'recharge', amount: 1000, description: 'Bank Transfer', date: '2026-03-20' },
-    ]);
+    if (!loading && !user) {
+      window.location.href = '/login';
+    }
+    if (user) {
+      fetchTransactions();
+      const interval = setInterval(refreshUser, 5000); // Real-time balance refresh
+      return () => clearInterval(interval);
+    }
   }, [user, loading]);
 
   const handleRecharge = async (e: React.FormEvent) => {
@@ -39,6 +55,7 @@ export default function BillingPage() {
       if (data.success) {
         setRechargeAmount('');
         await refreshUser();
+        await fetchTransactions(); // Refresh transactions after recharge
       }
     } catch (err) {
       console.error(err);
@@ -122,7 +139,7 @@ export default function BillingPage() {
                   <tbody className="divide-y divide-white/5 text-sm font-bold">
                     {transactions.map((tx) => (
                       <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
-                        <td className="px-8 py-6 text-gray-400 font-mono tracking-tighter">#{tx.id.padStart(6, '0')}</td>
+                        <td className="px-8 py-6 text-gray-400 font-mono tracking-tighter">#{tx.id.toString().substring(0,6)}</td>
                         <td className="px-8 py-6 text-white group-hover:text-blue-400 transition-colors">{tx.description}</td>
                         <td className="px-8 py-6 text-gray-500 flex items-center gap-2">
                            <Calendar className="w-4 h-4" /> {tx.date}
@@ -153,12 +170,12 @@ export default function BillingPage() {
                  <div className="space-y-4">
                    <div className="flex justify-between text-sm opacity-80 font-bold">
                      <span>Current Cycle</span>
-                     <span>Mar 1 - Mar 31</span>
+                     <span>APR 1 - APR 31</span>
                    </div>
                    <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                     <div className="h-full bg-white w-3/4" />
+                     <div className="h-full bg-white w-1/4" />
                    </div>
-                   <p className="text-[10px] font-black uppercase tracking-widest opacity-60 text-right">75% through cycle</p>
+                   <p className="text-[10px] font-black uppercase tracking-widest opacity-60 text-right">1% through cycle</p>
                  </div>
                </div>
              </div>
@@ -183,7 +200,7 @@ export default function BillingPage() {
                  <div className="h-px w-full bg-white/5" />
                  <div className="flex justify-between items-center font-black">
                     <span className="uppercase tracking-widest text-xs text-gray-500">Projected Total</span>
-                    <span className="text-xl text-blue-500">₹3,450.00</span>
+                    <span className="text-xl text-blue-500">₹{stats?.projectedMonthly?.toFixed(2) || '0.00'}</span>
                  </div>
                </div>
              </div>
