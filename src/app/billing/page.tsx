@@ -170,12 +170,12 @@ export default function BillingPage() {
                  <div className="space-y-4">
                    <div className="flex justify-between text-sm opacity-80 font-bold">
                      <span>Current Cycle</span>
-                     <span>APR 1 - APR 31</span>
+                     <span>APR 1 - APR 30</span>
                    </div>
                    <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
                      <div className="h-full bg-white w-1/4" />
                    </div>
-                   <p className="text-[10px] font-black uppercase tracking-widest opacity-60 text-right">1% through cycle</p>
+                   <p className="text-[10px] font-black uppercase tracking-widest opacity-60 text-right">3.5% through cycle</p>
                  </div>
                </div>
              </div>
@@ -200,7 +200,7 @@ export default function BillingPage() {
                  <div className="h-px w-full bg-white/5" />
                  <div className="flex justify-between items-center font-black">
                     <span className="uppercase tracking-widest text-xs text-gray-500">Projected Total</span>
-                    <span className="text-xl text-blue-500">₹{stats?.projectedMonthly?.toFixed(2) || '0.00'}</span>
+                    <span className="text-xl text-blue-500">₹{stats?.projectedMonthly?.toFixed(2)+30+45 || '0.00'}</span>
                  </div>
                </div>
              </div>
