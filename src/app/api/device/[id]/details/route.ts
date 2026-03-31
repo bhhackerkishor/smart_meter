@@ -23,6 +23,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const device = await Device.findOne({ deviceId: id, userId: decoded.userId });
     if (!device) return NextResponse.json({ error: 'Device not found' }, { status: 404 });
 
+    // Check for real-time online/offline status (active in last 2 minutes)
+    const isActuallyOnline = device.lastActive && (new Date().getTime() - new Date(device.lastActive).getTime() < 120000);
+
     // 2. Get Recent Logs (Last 100 for charts)
     const logs = await EnergyLog.find({ deviceId: id })
       .sort({ timestamp: -1 })
@@ -33,7 +36,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     return NextResponse.json({
       success: true,
-      device,
+      device: {
+        ...device.toObject(),
+        isOnline: isActuallyOnline
+      },
       current,
       logs: logs.reverse(), // Reverse for chronological order in charts
     });
