@@ -22,13 +22,29 @@ interface Device {
     current: number;
     power: number;
     status: string;
+    alerts?: string[];
   };
+  dailyConsumption?: number;
+  isOnline?: boolean;
+}
+
+interface Stats {
+  dailyConsumption: number;
+  projectedMonthly: number;
+  anyAlerts: boolean;
+  powerQuality: 'STABLE' | 'UNSTABLE';
 }
 
 export default function Dashboard() {
   const { user, token, loading } = useAuth();
   const router = useRouter();
   const [devices, setDevices] = useState<Device[]>([]);
+  const [stats, setStats] = useState<Stats>({
+    dailyConsumption: 0,
+    projectedMonthly: 0,
+    anyAlerts: false,
+    powerQuality: 'STABLE'
+  });
   const [fetching, setFetching] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -41,6 +57,7 @@ export default function Dashboard() {
       const data = await res.json();
       if (data.success) {
         setDevices(data.devices);
+        setStats(data.stats);
       }
     } catch (err) {
       console.error(err);
@@ -113,7 +130,10 @@ export default function Dashboard() {
               <span className="text-gray-400 text-sm font-medium">Available Credits</span>
               <h2 className="text-4xl font-black">₹{user?.balance.toFixed(2)}</h2>
             </div>
-            <button className="w-full mt-6 py-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-sm font-bold flex items-center justify-center gap-2 group">
+            <button 
+              onClick={() => router.push('/billing')}
+              className="w-full mt-6 py-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-sm font-bold flex items-center justify-center gap-2 group"
+            >
               <CreditCard className="w-4 h-4 text-gray-400 group-hover:text-white" /> Quick Recharge
             </button>
           </motion.div>
@@ -127,10 +147,10 @@ export default function Dashboard() {
             </div>
             <div className="space-y-1">
               <span className="text-gray-400 text-sm font-medium">Daily Consumption</span>
-              <h2 className="text-4xl font-black">12.4 <span className="text-xl text-gray-500">kWh</span></h2>
+              <h2 className="text-4xl font-black">{stats.dailyConsumption} <span className="text-xl text-gray-500">kWh</span></h2>
             </div>
             <div className="mt-6 flex items-center gap-2 text-sm text-gray-400">
-              <TrendingUp className="w-4 h-4 text-blue-400" /> Projection: ₹2,450 this month
+              <TrendingUp className="w-4 h-4 text-blue-400" /> Projection: ₹{stats.projectedMonthly} this month
             </div>
           </motion.div>
 
@@ -143,10 +163,11 @@ export default function Dashboard() {
             </div>
             <div className="space-y-1">
               <span className="text-gray-400 text-sm font-medium">Power Quality</span>
-              <h2 className="text-4xl font-black text-orange-500">STABLE</h2>
+              <h2 className={`text-4xl font-black ${stats.powerQuality === 'STABLE' ? 'text-green-500' : 'text-orange-500'}`}>{stats.powerQuality}</h2>
             </div>
             <div className="mt-6 flex items-center gap-2 text-sm text-gray-400">
-              <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" /> Low Power Factor detected on Device #1
+              <div className={`w-2 h-2 rounded-full ${stats.anyAlerts ? 'bg-orange-500 animate-pulse' : 'bg-green-500'}`} /> 
+              {stats.anyAlerts ? 'Alerts detected on devices' : 'All parameters normal'}
             </div>
           </motion.div>
         </div>
@@ -175,9 +196,9 @@ export default function Dashboard() {
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className="text-2xl font-black tracking-tight">{device.deviceId}</h3>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${
-                      device.status === 'online' ? 'bg-green-500 text-black' : 'bg-red-500 text-white'
+                      device.isOnline ? 'bg-green-500 text-black' : 'bg-red-500 text-white'
                     }`}>
-                      {device.status}
+                      {device.isOnline ? 'online' : 'offline'}
                     </span>
                   </div>
                   <p className="text-gray-500 text-sm font-medium">Mode: {device.mode.toUpperCase()}</p>
