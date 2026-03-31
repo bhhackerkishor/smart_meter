@@ -19,16 +19,44 @@ export async function GET(req: Request) {
 
     const devices = await Device.find({ userId: decoded.userId });
 
-    // For each device, get the latest log
+    // For each device, get the latest log and daily consumption
+    let dailyTotalConsumption = 0;
+    let anyAlerts = false;
+
     const devicesWithLogs = await Promise.all(
       devices.map(async (d) => {
         const lastLog = await EnergyLog.findOne({ deviceId: d.deviceId }).sort({ timestamp: -1 });
+        
+        // Calculate daily consumption for this device
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const [firstLogOfDay, lastLogOfDay] = await Promise.all([
+          EnergyLog.findOne({ deviceId: d.deviceId, timestamp: { $gte: startOfDay } }).sort({ timestamp: 1 }),
+          EnergyLog.findOne({ deviceId: d.deviceId, timestamp: { $gte: startOfDay } }).sort({ timestamp: -1 })
+        ]);
+
+        const deviceDailyConsumption = (lastLogOfDay && firstLogOfDay) 
+          ? Math.max(0, lastLogOfDay.energy - firstLogOfDay.energy) 
+          : 0;
+        
+        dailyTotalConsumption += deviceDailyConsumption;
+
+        if (lastLog?.alerts && lastLog.alerts.length > 0) anyAlerts = true;
+
+        // Check for real-time online/offline status (active in last 2 minutes)
+        const isActuallyOnline = d.lastActive && (new Date().getTime() - new Date(d.lastActive).getTime() < 120000);
+
         return {
           ...d.toObject(),
-          lastLog
+          lastLog,
+          dailyConsumption: deviceDailyConsumption,
+          isOnline: isActuallyOnline
         };
       })
     );
+
+    const projectedMonthly = (dailyTotalConsumption / (new Date().getHours() + 1)) * 24 * 30; // Rough projection
 
     return NextResponse.json({
       success: true,
@@ -39,6 +67,12 @@ export async function GET(req: Request) {
         balance: user.balance,
         role: user.role,
         status: user.status
+      },
+      stats: {
+        dailyConsumption: Number(dailyTotalConsumption.toFixed(2)),
+        projectedMonthly: Number(projectedMonthly.toFixed(2)),
+        anyAlerts: anyAlerts,
+        powerQuality: anyAlerts ? 'UNSTABLE' : 'STABLE'
       },
       devices: devicesWithLogs
     });
