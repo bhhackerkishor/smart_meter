@@ -189,6 +189,14 @@ export default function UserManagement() {
                              >
                                 <ShieldCheck className="w-4 h-4 text-gray-500 group-hover/btn:text-blue-500" />
                              </button>
+                            <button 
+                               onClick={() => updateUser(u._id, { balance: 0 })}
+                               disabled={updatingId === u._id}
+                               className="p-2.5 glass hover:bg-blue-600/10 transition-colors rounded-lg border border-white/5 group/btn" 
+                               title="MAKE ZERO BALANCE"
+                             >
+                                <Ban className="w-4 h-4 text-gray-500 group-hover/btn:text-blue-500" />
+                             </button>
                           </div>
                        </td>
                     </motion.tr>
